@@ -7,7 +7,7 @@ Each rule has sample events it must fire on and events it must ignore. Those cas
 ways: offline in Python, against a real Elasticsearch in CI, and as a controlled trigger in
 my own AWS and Entra lab (the one built in Project 8).
 
-![ci](https://github.com/Mannraj5/project-9-cloud-detection-engineering/actions/workflows/ci.yml/badge.svg)
+![ci](https://github.com/Mannraj5/Project-9-Cloud-Detection-Engineering/actions/workflows/ci.yml/badge.svg)
 
 ## Rules
 
