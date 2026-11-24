@@ -71,7 +71,7 @@ jobs:
       - name: Build Elastic Security rule import file
         run: detlab kibana -o build/kibana-rules.ndjson
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: kibana-rules
           path: build/kibana-rules.ndjson
