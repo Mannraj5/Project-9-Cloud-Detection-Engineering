@@ -1,0 +1,17 @@
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Real lab logs never go in git. Download them here and ingest from here.
+data/
+
+# Elastic start-local folder (holds the generated password and API key)
+elastic-start-local/
+.env
+
+# Unredacted screenshots: keep originals here, commit only the redacted copy in evidence/
+evidence/raw/

@@ -1,0 +1,37 @@
+title: AWS Console Sign-in Without MFA by IAM User or Root
+id: f3485bae-e409-4e94-8da0-f5ea73511be5
+name: aws_console_login_without_mfa
+status: experimental
+description: |
+  Detects a successful console sign-in by an IAM user or the root user where CloudTrail
+  records that no MFA was used.
+  Identity Center (SSO) sign-ins are deliberately excluded. They show up as AssumedRole with
+  MFAUsed "No" because MFA happens at the identity provider, not in AWS, so including them
+  would alert on every normal login.
+references:
+  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-event-reference-aws-console-sign-in-events.html
+  - https://attack.mitre.org/techniques/T1078/004/
+author: Manraj Singh Makin
+license: MIT
+date: 2026-11-24
+tags:
+  - attack.initial-access
+  - attack.stealth
+  - attack.t1078.004
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    eventSource: signin.amazonaws.com
+    eventName: ConsoleLogin
+    responseElements.ConsoleLogin: Success
+    additionalEventData.MFAUsed: 'No'
+    userIdentity.type:
+      - IAMUser
+      - Root
+  condition: selection
+falsepositives:
+  - None expected in this lab, which has no IAM users. In other environments, legacy IAM
+    users that have not enrolled MFA yet.
+level: high

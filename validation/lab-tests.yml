@@ -1,0 +1,67 @@
+# Results of the controlled trigger tests in the real lab (docs/testing-guide.md).
+# Fill one in after each test, then run `detlab coverage` to update the matrix.
+#
+#   status:   not run | passed | failed | not testable
+#   date:     YYYY-MM-DD
+#   evidence: path to the REDACTED screenshot under evidence/
+#   notes:    anything surprising (delay before the alert, extra events, tuning needed)
+
+aws_root_console_login:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+aws_cloudtrail_logging_tampering:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+aws_console_login_without_mfa:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+aws_iam_access_key_created:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+aws_guardrail_policy_change:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+aws_activity_outside_approved_region:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+entra_break_glass_signin:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+entra_privileged_role_assigned:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+entra_mass_user_disable:
+  status: not run
+  date:
+  evidence:
+  notes:
+
+entra_repeated_failed_signins:
+  status: not run
+  date:
+  evidence:
+  notes:

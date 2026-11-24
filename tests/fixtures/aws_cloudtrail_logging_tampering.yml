@@ -1,0 +1,70 @@
+rule: aws_cloudtrail_logging_tampering
+cases:
+  - name: denied StopLogging on the organisation trail from the Dev account (the safe lab test)
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity:
+          type: AssumedRole
+          arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevAdmin_0123456789abcdef/student"
+          accountId: "111111111111"
+        eventTime: "2026-12-05T10:00:00Z"
+        eventSource: cloudtrail.amazonaws.com
+        eventName: StopLogging
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        errorCode: AccessDenied
+        errorMessage: "User is not authorized to perform: cloudtrail:StopLogging"
+        requestParameters: {name: "arn:aws:cloudtrail:ap-southeast-2:222222222222:trail/org-trail"}
+        responseElements: null
+        eventID: 0a6f3c1e-0002-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: trail deleted
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevAdmin_0123456789abcdef/student", accountId: "111111111111"}
+        eventTime: "2026-12-05T10:05:00Z"
+        eventSource: cloudtrail.amazonaws.com
+        eventName: DeleteTrail
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        requestParameters: {name: detlab-test-trail}
+        responseElements: null
+        eventID: 0a6f3c1e-0002-4000-8000-000000000002
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: reading trail status is fine
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevReadOnly_0123456789abcdef/student", accountId: "111111111111"}
+        eventTime: "2026-12-05T10:10:00Z"
+        eventSource: cloudtrail.amazonaws.com
+        eventName: GetTrailStatus
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        requestParameters: {name: org-trail}
+        eventID: 0a6f3c1e-0002-4000-8000-000000000003
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: StopLogging name used by a different service does not match
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-05T10:12:00Z"
+        eventSource: example-other.amazonaws.com
+        eventName: StopLogging
+        awsRegion: ap-southeast-2
+        eventID: 0a6f3c1e-0002-4000-8000-000000000004
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"

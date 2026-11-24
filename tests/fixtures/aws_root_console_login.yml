@@ -1,0 +1,76 @@
+rule: aws_root_console_login
+cases:
+  - name: root user signs in to the console
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: Root, principalId: "111111111111", arn: "arn:aws:iam::111111111111:root", accountId: "111111111111"}
+        eventTime: "2026-12-02T09:15:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        userAgent: Mozilla/5.0
+        requestParameters: null
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {LoginTo: "https://console.aws.amazon.com/console/home", MobileVersion: "No", MFAUsed: "Yes"}
+        eventID: 0a6f3c1e-0001-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        managementEvent: true
+        recipientAccountId: "111111111111"
+        eventCategory: Management
+
+  - name: failed root sign-in attempt still alerts
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: Root, principalId: "111111111111", arn: "arn:aws:iam::111111111111:root", accountId: "111111111111"}
+        eventTime: "2026-12-02T09:14:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: us-east-1
+        sourceIPAddress: 198.51.100.66
+        errorMessage: Failed authentication
+        responseElements: {ConsoleLogin: Failure}
+        additionalEventData: {MFAUsed: "No"}
+        eventID: 0a6f3c1e-0001-4000-8000-000000000002
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"
+
+  - name: Identity Center user signs in (normal daily login)
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity:
+          type: AssumedRole
+          principalId: "AROAEXAMPLEID:student"
+          arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevReadOnly_0123456789abcdef/student"
+          accountId: "111111111111"
+        eventTime: "2026-12-02T09:20:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {MFAUsed: "No"}
+        eventID: 0a6f3c1e-0001-4000-8000-000000000003
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"
+
+  - name: root user makes a non-login API call (not this rule's job)
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: Root, principalId: "111111111111", arn: "arn:aws:iam::111111111111:root", accountId: "111111111111"}
+        eventTime: "2026-12-02T09:30:00Z"
+        eventSource: iam.amazonaws.com
+        eventName: GetAccountSummary
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        eventID: 0a6f3c1e-0001-4000-8000-000000000004
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"

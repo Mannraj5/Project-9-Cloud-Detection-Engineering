@@ -1,0 +1,49 @@
+rule: aws_iam_access_key_created
+cases:
+  - name: access key created for a test user
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevAdmin_0123456789abcdef/student", accountId: "111111111111"}
+        eventTime: "2026-12-07T13:00:00Z"
+        eventSource: iam.amazonaws.com
+        eventName: CreateAccessKey
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        requestParameters: {userName: detlab-test-user}
+        responseElements:
+          accessKey: {accessKeyId: AKIAEXAMPLEEXAMPLE00, status: Active, userName: detlab-test-user, createDate: "Dec 7, 2026 1:00:00 PM"}
+        eventID: 0a6f3c1e-0004-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: listing keys is read-only
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-07T13:05:00Z"
+        eventSource: iam.amazonaws.com
+        eventName: ListAccessKeys
+        awsRegion: us-east-1
+        requestParameters: {userName: detlab-test-user}
+        eventID: 0a6f3c1e-0004-4000-8000-000000000002
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: deleting the key during clean-up does not alert
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-07T13:10:00Z"
+        eventSource: iam.amazonaws.com
+        eventName: DeleteAccessKey
+        awsRegion: us-east-1
+        requestParameters: {userName: detlab-test-user, accessKeyId: AKIAEXAMPLEEXAMPLE00}
+        eventID: 0a6f3c1e-0004-4000-8000-000000000003
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"

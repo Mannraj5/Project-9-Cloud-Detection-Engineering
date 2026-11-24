@@ -1,0 +1,67 @@
+rule: aws_console_login_without_mfa
+cases:
+  - name: IAM user signs in with a password only
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: IAMUser, principalId: AIDAEXAMPLEUSER, arn: "arn:aws:iam::111111111111:user/detlab-test-user", accountId: "111111111111", userName: detlab-test-user}
+        eventTime: "2026-12-06T08:00:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {LoginTo: "https://console.aws.amazon.com/console/home", MobileVersion: "No", MFAUsed: "No"}
+        eventID: 0a6f3c1e-0003-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"
+
+  - name: IAM user signs in with MFA
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: IAMUser, arn: "arn:aws:iam::111111111111:user/detlab-test-user", accountId: "111111111111", userName: detlab-test-user}
+        eventTime: "2026-12-06T08:05:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: ap-southeast-2
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {MFAUsed: "Yes"}
+        eventID: 0a6f3c1e-0003-4000-8000-000000000002
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"
+
+  - name: Identity Center login always shows MFAUsed No (MFA happened at the IdP)
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevReadOnly_0123456789abcdef/student", accountId: "111111111111"}
+        eventTime: "2026-12-06T08:10:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: ap-southeast-2
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {MFAUsed: "No"}
+        eventID: 0a6f3c1e-0003-4000-8000-000000000003
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"
+
+  - name: failed password-only login is not a successful login
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: IAMUser, arn: "arn:aws:iam::111111111111:user/detlab-test-user", accountId: "111111111111", userName: detlab-test-user}
+        eventTime: "2026-12-06T08:15:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: ap-southeast-2
+        errorMessage: Failed authentication
+        responseElements: {ConsoleLogin: Failure}
+        additionalEventData: {MFAUsed: "No"}
+        eventID: 0a6f3c1e-0003-4000-8000-000000000004
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"

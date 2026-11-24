@@ -1,0 +1,72 @@
+rule: entra_mass_user_disable
+cases:
+  - name: one admin disables six accounts in five minutes
+    expect: alert
+    events:
+      - repeat: 6
+        every_seconds: 50
+        event:
+          id: Directory_0009-A
+          category: UserManagement
+          result: success
+          activityDisplayName: Disable account
+          activityDateTime: "2026-12-12T03:00:30Z"
+          loggedByService: Core Directory
+          initiatedBy: {user: {userPrincipalName: compromised.admin@lab.example, ipAddress: 198.51.100.66}}
+          targetResources:
+            - type: User
+              userPrincipalName: victim@lab.example
+              modifiedProperties:
+                - {displayName: AccountEnabled, oldValue: "[true]", newValue: "[false]"}
+
+  - name: three disables is normal offboarding
+    expect: no_alert
+    events:
+      - repeat: 3
+        every_seconds: 60
+        event:
+          id: Directory_0009-B
+          category: UserManagement
+          result: success
+          activityDisplayName: Disable account
+          activityDateTime: "2026-12-12T04:00:30Z"
+          initiatedBy: {user: {userPrincipalName: admin@lab.example}}
+          targetResources:
+            - {type: User, userPrincipalName: leaver@lab.example}
+
+  - name: six disables by two different admins (three each)
+    expect: no_alert
+    events:
+      - repeat: 3
+        every_seconds: 30
+        event:
+          id: Directory_0009-C
+          result: success
+          activityDisplayName: Disable account
+          activityDateTime: "2026-12-12T05:00:30Z"
+          initiatedBy: {user: {userPrincipalName: admin@lab.example}}
+          targetResources: [{type: User}]
+      - repeat: 3
+        every_seconds: 30
+        event:
+          id: Directory_0009-D
+          result: success
+          activityDisplayName: Disable account
+          activityDateTime: "2026-12-12T05:00:45Z"
+          initiatedBy: {user: {userPrincipalName: second.admin@lab.example}}
+          targetResources: [{type: User}]
+
+  - name: "known gap: a burst split across a 10-minute bucket boundary is missed"
+    expect: no_alert
+    events:
+      # Six disables in four minutes (06:08:00 to 06:12:00), but the fixed buckets are
+      # 06:00-06:10 and 06:10-06:20, so each bucket only sees three.
+      - repeat: 6
+        every_seconds: 48
+        event:
+          id: Directory_0009-E
+          result: success
+          activityDisplayName: Disable account
+          activityDateTime: "2026-12-12T06:08:00Z"
+          initiatedBy: {user: {userPrincipalName: compromised.admin@lab.example}}
+          targetResources: [{type: User}]

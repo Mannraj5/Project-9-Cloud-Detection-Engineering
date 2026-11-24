@@ -1,0 +1,31 @@
+# pySigma processing pipeline for this lab.
+# Field names are kept exactly as they appear in the raw logs (CloudTrail JSON and the
+# Microsoft Graph / Entra export schema), so no field mapping is needed. The only job here
+# is to point each log source at its own Elasticsearch index.
+name: detlab native fields
+priority: 20
+transformations:
+  - id: index_cloudtrail
+    type: set_state
+    key: index
+    val: detlab-cloudtrail
+    rule_conditions:
+      - type: logsource
+        product: aws
+        service: cloudtrail
+  - id: index_entra_signin
+    type: set_state
+    key: index
+    val: detlab-entra-signin
+    rule_conditions:
+      - type: logsource
+        product: azure
+        service: signinlogs
+  - id: index_entra_audit
+    type: set_state
+    key: index
+    val: detlab-entra-audit
+    rule_conditions:
+      - type: logsource
+        product: azure
+        service: auditlogs

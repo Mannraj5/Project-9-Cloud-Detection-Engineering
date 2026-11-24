@@ -1,0 +1,87 @@
+rule: aws_activity_outside_approved_region
+cases:
+  - name: instance launch attempted in us-east-1 (denied by the Sydney-only policy)
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::111111111111:assumed-role/AWSReservedSSO_DevAdmin_0123456789abcdef/student", accountId: "111111111111"}
+        eventTime: "2026-12-09T14:00:00Z"
+        eventSource: ec2.amazonaws.com
+        eventName: RunInstances
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        errorCode: Client.UnauthorizedOperation
+        requestParameters: {instancesSet: {items: [{imageId: ami-example, minCount: 1, maxCount: 1}]}, instanceType: t3.micro}
+        eventID: 0a6f3c1e-0006-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: write call in eu-west-1
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-09T14:05:00Z"
+        eventSource: lambda.amazonaws.com
+        eventName: CreateFunction20150331
+        awsRegion: eu-west-1
+        eventID: 0a6f3c1e-0006-4000-8000-000000000002
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: same launch in Sydney is normal
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-09T14:10:00Z"
+        eventSource: ec2.amazonaws.com
+        eventName: RunInstances
+        awsRegion: ap-southeast-2
+        eventID: 0a6f3c1e-0006-4000-8000-000000000003
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: IAM is a global service that logs in us-east-1
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-09T14:15:00Z"
+        eventSource: iam.amazonaws.com
+        eventName: CreateRole
+        awsRegion: us-east-1
+        eventID: 0a6f3c1e-0006-4000-8000-000000000004
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: read-only browsing in another region (console pages do this) is ignored
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-09T14:20:00Z"
+        eventSource: ec2.amazonaws.com
+        eventName: DescribeInstances
+        awsRegion: us-east-1
+        eventID: 0a6f3c1e-0006-4000-8000-000000000005
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"
+
+  - name: "known gap: an event without a readOnly field is not matched (ES|QL null logic)"
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "111111111111"}
+        eventTime: "2026-12-09T14:25:00Z"
+        eventSource: ec2.amazonaws.com
+        eventName: RunInstances
+        awsRegion: us-west-2
+        eventID: 0a6f3c1e-0006-4000-8000-000000000006
+        eventType: AwsApiCall
+        recipientAccountId: "111111111111"

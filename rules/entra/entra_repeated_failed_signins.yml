@@ -1,0 +1,55 @@
+title: Entra ID Failed Sign-in (Bad Password or Smart Lockout)
+id: 5cbc6c80-5a28-400e-823b-a21f888ba57a
+name: entra_failed_signin
+status: experimental
+description: |
+  Base rule for the repeated failed sign-ins correlation below. Error 50126 is an invalid
+  username or password; 50053 is an account locked by Smart Lockout.
+references:
+  - https://learn.microsoft.com/en-us/entra/identity-platform/reference-error-codes
+author: Manraj Singh Makin
+license: MIT
+date: 2026-11-24
+logsource:
+  product: azure
+  service: signinlogs
+detection:
+  selection:
+    status.errorCode:
+      - 50126
+      - 50053
+  condition: selection
+falsepositives:
+  - Users mistyping their password.
+level: informational
+---
+title: Entra ID Repeated Failed Sign-ins for One User
+id: d78cf5bd-6939-4450-b645-0e8203d13940
+name: entra_repeated_failed_signins
+status: experimental
+description: |
+  Detects ten or more bad-password or lockout failures for the same user within ten
+  minutes, a sign of password guessing against that account.
+  Grouping is on the lower-cased UPN so that "User@" and "user@" count as one account.
+  Like the other correlation rule, ES|QL counts in fixed ten-minute buckets.
+references:
+  - https://attack.mitre.org/techniques/T1110/001/
+author: Manraj Singh Makin
+license: MIT
+date: 2026-11-24
+tags:
+  - attack.credential-access
+  - attack.t1110.001
+correlation:
+  type: event_count
+  rules:
+    - entra_failed_signin
+  group-by:
+    - detlab.user_principal_name_lc
+  timespan: 10m
+  condition:
+    gte: 10
+falsepositives:
+  - A device or app still using an old password after a password change (it retries in a
+    loop). The source IP and app name in the events usually make this obvious.
+level: medium

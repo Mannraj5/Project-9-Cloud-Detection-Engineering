@@ -1,0 +1,61 @@
+rule: aws_guardrail_policy_change
+cases:
+  - name: SCP content updated in the management account
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, arn: "arn:aws:sts::222222222222:assumed-role/AWSReservedSSO_OrgAdmin_0123456789abcdef/admin", accountId: "222222222222"}
+        eventTime: "2026-12-08T09:00:00Z"
+        eventSource: organizations.amazonaws.com
+        eventName: UpdatePolicy
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        requestParameters: {policyId: p-examplescp1, content: "{...}"}
+        eventID: 0a6f3c1e-0005-4000-8000-000000000001
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "222222222222"
+
+  - name: inline policy added to a permission set
+    expect: alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "222222222222"}
+        eventTime: "2026-12-08T09:10:00Z"
+        eventSource: sso.amazonaws.com
+        eventName: PutInlinePolicyToPermissionSet
+        awsRegion: ap-southeast-2
+        sourceIPAddress: 203.0.113.10
+        requestParameters: {instanceArn: "arn:aws:sso:::instance/ssoins-example", permissionSetArn: "arn:aws:sso:::permissionSet/ssoins-example/ps-example"}
+        eventID: 0a6f3c1e-0005-4000-8000-000000000002
+        readOnly: false
+        eventType: AwsApiCall
+        recipientAccountId: "222222222222"
+
+  - name: listing SCPs is read-only
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "222222222222"}
+        eventTime: "2026-12-08T09:20:00Z"
+        eventSource: organizations.amazonaws.com
+        eventName: ListPolicies
+        awsRegion: us-east-1
+        eventID: 0a6f3c1e-0005-4000-8000-000000000003
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "222222222222"
+
+  - name: describing a permission set is read-only
+    expect: no_alert
+    events:
+      - eventVersion: "1.10"
+        userIdentity: {type: AssumedRole, accountId: "222222222222"}
+        eventTime: "2026-12-08T09:25:00Z"
+        eventSource: sso.amazonaws.com
+        eventName: DescribePermissionSet
+        awsRegion: ap-southeast-2
+        eventID: 0a6f3c1e-0005-4000-8000-000000000004
+        readOnly: true
+        eventType: AwsApiCall
+        recipientAccountId: "222222222222"

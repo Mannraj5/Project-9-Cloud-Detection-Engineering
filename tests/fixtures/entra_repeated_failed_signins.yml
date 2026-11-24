@@ -1,0 +1,74 @@
+rule: entra_repeated_failed_signins
+cases:
+  - name: twelve bad passwords for one user in six minutes, UPN case varies
+    expect: alert
+    events:
+      - repeat: 6
+        every_seconds: 30
+        event:
+          id: 6b1f0000-0010-4000-8000-00000000000a
+          createdDateTime: "2026-12-13T11:00:00Z"
+          userPrincipalName: student@lab.example
+          appDisplayName: Microsoft Azure Portal
+          ipAddress: 198.51.100.66
+          clientAppUsed: Browser
+          isInteractive: true
+          status: {errorCode: 50126, failureReason: Invalid username or password or Invalid on-premise username or password.}
+      - repeat: 6
+        every_seconds: 30
+        event:
+          id: 6b1f0000-0010-4000-8000-00000000000b
+          createdDateTime: "2026-12-13T11:03:00Z"
+          userPrincipalName: Student@lab.example
+          appDisplayName: Microsoft Azure Portal
+          ipAddress: 198.51.100.66
+          status: {errorCode: 50126}
+
+  - name: smart lockout events count too
+    expect: alert
+    events:
+      - repeat: 10
+        every_seconds: 20
+        event:
+          id: 6b1f0000-0010-4000-8000-00000000000c
+          createdDateTime: "2026-12-13T12:00:00Z"
+          userPrincipalName: student@lab.example
+          status: {errorCode: 50053, failureReason: Account is locked because user tried to sign in too many times with an incorrect user ID or password.}
+
+  - name: five typos is normal
+    expect: no_alert
+    events:
+      - repeat: 5
+        every_seconds: 40
+        event:
+          id: 6b1f0000-0010-4000-8000-00000000000d
+          createdDateTime: "2026-12-13T13:00:00Z"
+          userPrincipalName: student@lab.example
+          status: {errorCode: 50126}
+
+  - name: twelve successful sign-ins
+    expect: no_alert
+    events:
+      - repeat: 12
+        every_seconds: 20
+        event:
+          id: 6b1f0000-0010-4000-8000-00000000000e
+          createdDateTime: "2026-12-13T14:00:00Z"
+          userPrincipalName: student@lab.example
+          status: {errorCode: 0}
+
+  - name: "known gap: password spray (one failure each on twelve users) needs a separate per-IP rule"
+    expect: no_alert
+    events:
+      - {id: spray-01, createdDateTime: "2026-12-13T15:00:00Z", userPrincipalName: user01@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-02, createdDateTime: "2026-12-13T15:00:10Z", userPrincipalName: user02@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-03, createdDateTime: "2026-12-13T15:00:20Z", userPrincipalName: user03@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-04, createdDateTime: "2026-12-13T15:00:30Z", userPrincipalName: user04@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-05, createdDateTime: "2026-12-13T15:00:40Z", userPrincipalName: user05@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-06, createdDateTime: "2026-12-13T15:00:50Z", userPrincipalName: user06@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-07, createdDateTime: "2026-12-13T15:01:00Z", userPrincipalName: user07@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-08, createdDateTime: "2026-12-13T15:01:10Z", userPrincipalName: user08@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-09, createdDateTime: "2026-12-13T15:01:20Z", userPrincipalName: user09@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-10, createdDateTime: "2026-12-13T15:01:30Z", userPrincipalName: user10@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-11, createdDateTime: "2026-12-13T15:01:40Z", userPrincipalName: user11@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}
+      - {id: spray-12, createdDateTime: "2026-12-13T15:01:50Z", userPrincipalName: user12@lab.example, ipAddress: 198.51.100.66, status: {errorCode: 50126}}

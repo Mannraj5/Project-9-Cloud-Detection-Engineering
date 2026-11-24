@@ -1,0 +1,52 @@
+title: AWS Write Activity Outside the Approved Region
+id: 41898c56-57f3-448e-a234-2e8b6197f53a
+name: aws_activity_outside_approved_region
+status: experimental
+description: |
+  Detects write (non read-only) API calls outside ap-southeast-2 (Sydney), the only region
+  the lab uses. Attackers often launch resources in a region nobody watches, for example to
+  mine crypto. Global services that always log in us-east-1 (IAM, Organizations, sign-in,
+  billing and similar) are filtered out.
+  Calls blocked by the Sydney-only policy still appear here with an AccessDenied error code,
+  which is useful: it shows someone tried.
+references:
+  - https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-concepts.html#cloudtrail-concepts-global-service-events
+  - https://attack.mitre.org/techniques/T1535/
+author: Manraj Singh Makin
+license: MIT
+date: 2026-11-24
+tags:
+  - attack.stealth
+  - attack.t1535
+logsource:
+  product: aws
+  service: cloudtrail
+detection:
+  selection:
+    readOnly: false
+  filter_main_approved_region:
+    awsRegion: ap-southeast-2
+  filter_main_global_services:
+    awsRegion: us-east-1
+    eventSource:
+      - iam.amazonaws.com
+      - organizations.amazonaws.com
+      - signin.amazonaws.com
+      - sts.amazonaws.com
+      - account.amazonaws.com
+      - billingconsole.amazonaws.com
+      - budgets.amazonaws.com
+      - ce.amazonaws.com
+      - cur.amazonaws.com
+      - health.amazonaws.com
+      - support.amazonaws.com
+      - trustedadvisor.amazonaws.com
+      - cloudfront.amazonaws.com
+      - route53.amazonaws.com
+      - notifications.amazonaws.com
+  condition: selection and not 1 of filter_main_*
+falsepositives:
+  - Global services not in the filter list. Add them after checking they really only log in
+    us-east-1.
+  - Console pages that make background write calls in another region (rare).
+level: medium

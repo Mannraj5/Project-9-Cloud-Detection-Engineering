@@ -1,0 +1,89 @@
+rule: entra_privileged_role_assigned
+cases:
+  - name: user added to Global Administrator
+    expect: alert
+    events:
+      - id: Directory_0008-0001
+        category: RoleManagement
+        correlationId: 00000000-0000-4000-8000-000000000801
+        result: success
+        resultReason: ""
+        activityDisplayName: Add member to role
+        activityDateTime: "2026-12-11T10:00:00Z"
+        loggedByService: Core Directory
+        operationType: Assign
+        initiatedBy:
+          user: {id: 00000000-0000-4000-8000-0000000000a1, userPrincipalName: admin@lab.example, ipAddress: 203.0.113.10}
+          app: null
+        targetResources:
+          - id: 00000000-0000-4000-8000-0000000000c1
+            type: User
+            userPrincipalName: new.admin@lab.example
+            modifiedProperties:
+              - {displayName: Role.ObjectID, oldValue: null, newValue: '"00000000-0000-4000-8000-0000000000f1"'}
+              - {displayName: Role.DisplayName, oldValue: null, newValue: '"Global Administrator"'}
+              - {displayName: Role.TemplateId, oldValue: null, newValue: '"62e90394-69f5-4237-9190-012177145e10"'}
+              - {displayName: Role.WellKnownObjectName, oldValue: null, newValue: '"TenantAdmins"'}
+          - {id: 00000000-0000-4000-8000-0000000000f1, displayName: Global Administrator, type: Role}
+        additionalDetails: []
+
+  - name: user added to Privileged Role Administrator
+    expect: alert
+    events:
+      - id: Directory_0008-0002
+        category: RoleManagement
+        result: success
+        activityDisplayName: Add member to role
+        activityDateTime: "2026-12-11T10:05:00Z"
+        initiatedBy: {user: {userPrincipalName: admin@lab.example}}
+        targetResources:
+          - type: User
+            userPrincipalName: helpdesk@lab.example
+            modifiedProperties:
+              - {displayName: Role.DisplayName, oldValue: null, newValue: '"Privileged Role Administrator"'}
+
+  - name: lower-tier role (Helpdesk Administrator) is not tier 0
+    expect: no_alert
+    events:
+      - id: Directory_0008-0003
+        category: RoleManagement
+        result: success
+        activityDisplayName: Add member to role
+        activityDateTime: "2026-12-11T10:10:00Z"
+        initiatedBy: {user: {userPrincipalName: admin@lab.example}}
+        targetResources:
+          - type: User
+            userPrincipalName: helpdesk@lab.example
+            modifiedProperties:
+              - {displayName: Role.DisplayName, oldValue: null, newValue: '"Helpdesk Administrator"'}
+
+  - name: failed Global Administrator assignment
+    expect: no_alert
+    events:
+      - id: Directory_0008-0004
+        category: RoleManagement
+        result: failure
+        resultReason: Insufficient privileges
+        activityDisplayName: Add member to role
+        activityDateTime: "2026-12-11T10:15:00Z"
+        initiatedBy: {user: {userPrincipalName: student@lab.example}}
+        targetResources:
+          - type: User
+            userPrincipalName: student@lab.example
+            modifiedProperties:
+              - {displayName: Role.DisplayName, oldValue: null, newValue: '"Global Administrator"'}
+
+  - name: added to a group, not a role
+    expect: no_alert
+    events:
+      - id: Directory_0008-0005
+        category: GroupManagement
+        result: success
+        activityDisplayName: Add member to group
+        activityDateTime: "2026-12-11T10:20:00Z"
+        initiatedBy: {user: {userPrincipalName: admin@lab.example}}
+        targetResources:
+          - type: User
+            userPrincipalName: student@lab.example
+            modifiedProperties:
+              - {displayName: Group.DisplayName, oldValue: null, newValue: '"Global Administrators Fan Club"'}
