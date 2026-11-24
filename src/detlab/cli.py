@@ -1,4 +1,4 @@
-"""Command line: detlab test | lint | convert | coverage | kibana | ingest | live-validate."""
+"""Command line: detlab test | lint | convert | coverage | kibana | check-export | ingest | live-validate."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from detlab import convert, coverage, fixtures, lint, live
+from detlab import check_export, convert, coverage, fixtures, lint, live
 from detlab.es import Elastic, ElasticError
 from detlab.ingest import ingest
 
@@ -64,6 +64,11 @@ def cmd_coverage(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_check_export(args: argparse.Namespace) -> int:
+    report = check_export.check(_root(args) / "rules", [Path(p) for p in args.paths])
+    return check_export.print_report(report)
+
+
 def cmd_ingest(args: argparse.Namespace) -> int:
     root = _root(args)
     es = Elastic(args.es_url)
@@ -110,6 +115,10 @@ def main(argv: list[str] | None = None) -> int:
     p_kibana.add_argument("-o", "--output", default="build/kibana-rules.ndjson")
     p_kibana.add_argument("--interval", type=int, default=10, help="schedule and look-back in minutes (default 10)")
     p_kibana.set_defaults(func=cmd_kibana)
+
+    p_check = sub.add_parser("check-export", help="check real log files against the fields the rules use (offline)")
+    p_check.add_argument("paths", nargs="+", help="files or folders (.json, .json.gz, .jsonl)")
+    p_check.set_defaults(func=cmd_check_export)
 
     p_ingest = sub.add_parser("ingest", help="load CloudTrail / Entra JSON files into Elasticsearch")
     p_ingest.add_argument("paths", nargs="+", help="files or folders (.json, .json.gz, .jsonl)")

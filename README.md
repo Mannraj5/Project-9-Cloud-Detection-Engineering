@@ -73,6 +73,7 @@ With an Elasticsearch to talk to (`ES_URL`, `ES_API_KEY`):
 
 ```bash
 detlab live-validate            # same fixtures, real ES|QL, throwaway detlabtest-* indices
+detlab check-export data/       # offline: do real logs have the fields the rules use?
 detlab ingest data/             # load real CloudTrail / Entra logs
 detlab kibana                   # build/kibana-rules.ndjson to import into Elastic Security
 ```

@@ -66,10 +66,24 @@ export. Free keeps sign-in and audit data for **7 days**, so export soon after e
 `detlab ingest` recognises each record by its fields (`createdDateTime` +
 `userPrincipalName` for sign-ins, `activityDisplayName` + `activityDateTime` for audit
 events). The rules and fixtures assume the portal export uses the same field names as the
-Microsoft Graph `signIn` and `directoryAudit` resources. **Check this on your first
-export:** if records show up as "skipped", or a rule doesn't fire on a test you know
-happened, compare a real record with the fixture for that rule and fix whichever is wrong.
-Then update the fixture so the test matches reality.
+Microsoft Graph `signIn` and `directoryAudit` resources. Microsoft's docs don't publish the
+download's exact layout, so **check your first export before ingesting it**:
+
+```bash
+detlab check-export data/entra
+```
+
+It runs offline and prints only counts and field names, so the output is safe to screenshot.
+For every rule it shows how many records hold each field the rule uses and how many records
+the detection matches. It fails when:
+
+- records aren't recognised (it lists their top-level keys, so a rename is easy to spot),
+- a field is missing but exists with different casing (for example `Result` vs `result`),
+- a field is an array, which ES|QL compares as null, so the rule would never match.
+
+A field that is in no record is only a note: the export may simply have no events of that
+kind. If something is wrong, fix whichever is wrong (rule, normalisation or fixture), and
+update the fixture so the test matches reality. The same check works on CloudTrail files.
 
 ## Check it landed
 
