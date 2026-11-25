@@ -27,27 +27,45 @@ def to_test_query(query: str) -> str:
     return rewritten
 
 
+def _recreate(es: Elastic, indices: list[str]) -> None:
+    for index in indices:
+        es.delete_index(index)
+        es.create_index(index)
+
+
+def _load(es: Elastic, by_index: dict[str, list[tuple[str | None, dict]]]) -> list[str]:
+    errors: list[str] = []
+    for index, docs in by_index.items():
+        errors.extend(es.bulk_index(index, docs, refresh=True))
+    return errors
+
+
 def run_live(es: Elastic, rules_dir: Path, fixtures_dir: Path, pipeline_file: Path, template_file: Path) -> list[fixtures.CaseResult]:
     install_template(es, template_file)
     queries = convert.convert_rules(rules_dir, pipeline_file)
     test_indices = [_test_index(s) for s in normalize.INDEX]
     results: list[fixtures.CaseResult] = []
 
+    # Create the test indices once and empty them between cases. Recreating them for every
+    # case meant ~260 cluster-state changes, which timed out on a single node on an HDD.
+    _recreate(es, test_indices)
     for name, fixture in fixtures.load_fixtures(fixtures_dir).items():
         for case in fixture.cases:
             if name not in queries:
                 results.append(fixtures.CaseResult(name, case.name, case.expect, None, "no converted query"))
                 continue
             for index in test_indices:
-                es.delete_index(index)
-                es.create_index(index)
+                es.clear_index(index)
             by_index: dict[str, list[tuple[str | None, dict]]] = {}
             for raw in case.raw_events:
                 source, doc = normalize.normalize(raw)
                 by_index.setdefault(_test_index(source), []).append((normalize.document_id(source, raw), doc))
-            errors: list[str] = []
-            for index, docs in by_index.items():
-                errors.extend(es.bulk_index(index, docs, refresh=True))
+            errors = _load(es, by_index)
+            if errors:
+                # A dynamic mapping left by an earlier case can clash with this one; retry on
+                # fresh indices so each case is judged on its own events only.
+                _recreate(es, test_indices)
+                errors = _load(es, by_index)
             if errors:
                 results.append(fixtures.CaseResult(name, case.name, case.expect, None, "; ".join(errors[:3])))
                 continue

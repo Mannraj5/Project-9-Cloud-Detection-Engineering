@@ -96,7 +96,7 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
 
 - [x] 10 rules with fixtures, offline evaluator, CI against real Elasticsearch
 - [x] Triage playbooks: CloudTrail tampering, root sign-in, tier-0 role assignment
-- [ ] Elastic running in the VirtualBox VM ([docs/siem-setup.md](docs/siem-setup.md))
+- [ ] Elastic running locally in WSL2 ([docs/siem-setup.md](docs/siem-setup.md))
 - [ ] Real CloudTrail and Entra logs ingested ([docs/ingestion.md](docs/ingestion.md))
 - [ ] Each rule triggered in the lab with a redacted screenshot ([docs/testing-guide.md](docs/testing-guide.md))
 

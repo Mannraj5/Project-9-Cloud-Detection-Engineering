@@ -63,15 +63,23 @@ class Elastic:
     def put_index_template(self, name: str, template: dict[str, Any]) -> None:
         self.request("PUT", f"/_index_template/{name}", template)
 
+    # Index create/delete changes cluster state, which a small node on a slow disk can take
+    # longer than the default 30s to commit, so give those calls more time.
+    _CLUSTER_TIMEOUT = "?master_timeout=2m&timeout=2m"
+
     def delete_index(self, index: str) -> None:
         try:
-            self.request("DELETE", f"/{index}")
+            self.request("DELETE", f"/{index}{self._CLUSTER_TIMEOUT}")
         except ElasticError as exc:
             if exc.status != 404:
                 raise
 
     def create_index(self, index: str) -> None:
-        self.request("PUT", f"/{index}")
+        self.request("PUT", f"/{index}{self._CLUSTER_TIMEOUT}")
+
+    def clear_index(self, index: str) -> None:
+        """Remove every document but keep the index (no cluster-state change)."""
+        self.request("POST", f"/{index}/_delete_by_query?refresh=true&conflicts=proceed", {"query": {"match_all": {}}})
 
     def bulk_index(self, index: str, docs: list[tuple[str | None, dict[str, Any]]], refresh: bool = False) -> list[str]:
         """Index documents; returns a list of per-document error messages (empty if all good)."""

@@ -1,27 +1,76 @@
-# SIEM setup (Elastic in a VirtualBox VM)
+# SIEM setup (Elastic in WSL2)
 
-The SIEM runs locally, so it costs nothing. These steps were written for an Ubuntu Server
-VM. Check Elastic's current docs before you start, because the install script and licence
+The SIEM runs locally, so it costs nothing. It runs in Ubuntu on WSL2 on a Windows PC.
+Check Elastic's current docs before you start, because the install script and licence
 terms can change.
 
-## 1. VM
+## Why WSL2 and not VirtualBox
 
-- Ubuntu Server 24.04 LTS, 2 vCPU, **8 GB RAM** (Elasticsearch and Kibana together need
-  about 4 GB; 8 GB stays responsive), 40 GB disk.
-- Networking: NAT plus a port forward for 5601 (Kibana) and 9200 (Elasticsearch) to
-  127.0.0.1 on the host only. Don't bridge it onto the university or home network.
-- Take a snapshot after the OS install.
+The first plan was an Ubuntu Server VM in VirtualBox. With Windows Memory Integrity (core
+isolation) turned on, Windows keeps VT-x for its own hypervisor and VirtualBox falls back
+to a slow compatibility mode (its log says `VT-x is not available ... fall back to NEM`).
+The Ubuntu installer hung at "Loading essential drivers". WSL2 runs on the same Windows
+hypervisor, so it works with Memory Integrity left on, and turning off a host security
+control for a lab is a poor trade.
+
+## 1. WSL2 and Ubuntu
+
+In an admin PowerShell, then restart Windows:
+
+```powershell
+wsl --install --no-distribution
+```
+
+Cap WSL's memory in `%USERPROFILE%\.wslconfig` so Elastic can't starve the host
+(Elasticsearch and Kibana together need about 4 GB):
+
+```ini
+[general]
+instanceIdleTimeout=-1
+
+[wsl2]
+memory=8GB
+processors=4
+swap=4GB
+vmIdleTimeout=-1
+```
+
+The two idle timeouts matter. By default WSL stops a distro soon after its last terminal
+closes, which stops Docker and Elastic with it. With `-1` it keeps running until
+`wsl --shutdown` or a reboot.
+
+Install Ubuntu off the system drive:
+
+```powershell
+wsl --install Ubuntu-26.04 --location D:\WSL\Ubuntu-26.04
+```
+
+Ubuntu on WSL has systemd on by default (`/etc/wsl.conf`), and `vm.max_map_count` is
+already high enough for Elasticsearch.
 
 ## 2. Docker and Elastic start-local
 
-Elastic's `start-local` script sets up Elasticsearch and Kibana in Docker with security on,
-for local development:
+Install Docker Engine inside Ubuntu from Docker's apt repository (see Docker's "Install
+Docker Engine on Ubuntu" page; Docker Desktop isn't needed). Then download Elastic's
+`start-local` script, read it, and run it. It sets up Elasticsearch and Kibana in Docker
+with security on, for local development:
 
 ```bash
-sudo apt-get update && sudo apt-get install -y docker.io docker-compose-v2 curl
-sudo usermod -aG docker "$USER"   # log out and back in after this
-curl -fsSL https://elastic.co/start-local | sh
+curl -fsSL https://elastic.co/start-local -o start-local.sh
+less start-local.sh
+sh start-local.sh
 ```
+
+Make the containers come back whenever Docker starts (start-local doesn't set a restart
+policy):
+
+```bash
+docker update --restart unless-stopped es-local-dev kibana-local-dev
+```
+
+start-local publishes ports 9200 and 5601 on 127.0.0.1 only. WSL2 forwards localhost to Windows, so
+Kibana and Elasticsearch open on `localhost` from the PC and nothing is exposed to the
+network.
 
 The script creates an `elastic-start-local/` folder. Its `.env` file holds the `elastic`
 password and an API key. Treat that file as a secret: it is in `.gitignore`, and nothing in
@@ -34,7 +83,7 @@ Open Kibana at http://localhost:5601 and sign in as `elastic`.
 
 ## 3. Connect detlab
 
-On the machine that will run `detlab` (the VM, or your PC through the port forward):
+On the Windows PC (WSL2 forwards localhost) or inside Ubuntu:
 
 ```bash
 python -m venv .venv
@@ -62,7 +111,16 @@ has them.
 Also create a data view for `detlab-*` (Stack Management → Data views) so you can browse the
 events in Discover.
 
-## 5. Snapshot again
+## 5. Back it up
 
-Snapshot the VM once Elastic is running and the rules are imported. If something breaks
-during testing, roll back instead of debugging for an hour.
+Once Elastic is running and the rules are imported, export the distro as a restore point.
+If something breaks during testing, restore it instead of debugging for an hour:
+
+```powershell
+wsl --shutdown
+wsl --export Ubuntu-26.04 D:\WSL\backups\ubuntu-elastic-ready.tar
+# restore: wsl --import Ubuntu-26.04 D:\WSL\Ubuntu-26.04 D:\WSL\backups\ubuntu-elastic-ready.tar
+```
+
+Stop Elastic when you're not using it (`elastic-start-local/stop.sh`, or `wsl --shutdown`)
+to get the 8 GB back.
