@@ -103,6 +103,10 @@ Don't put the key in a script file you might commit.
 detlab kibana -o build/kibana-rules.ndjson
 ```
 
+Kibana 9 can open the Default space in the "Elasticsearch" solution view, which turns the
+Security app off (`/app/security/rules` says "Application not found"). Switch it first:
+gear icon → **Spaces → Default → Solution view: Security → Apply changes**.
+
 In Kibana go to **Security → Rules → Detection rules → Import rules** and import
 `build/kibana-rules.ndjson`. The rules arrive enabled with a 10-minute schedule (see
 `design-notes.md` for why). Imported rules need a user with Security privileges; `elastic`
