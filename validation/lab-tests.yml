@@ -13,10 +13,18 @@ aws_root_console_login:
   notes:
 
 aws_cloudtrail_logging_tampering:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-26
+  evidence: evidence/aws_cloudtrail_logging_tampering.png
+  notes: >-
+    Two denied StopLogging calls on the organisation trail from the Dev account at 10:28:52
+    and 10:29:02 UTC, as a ReadOnly Identity Center user (a low-privilege insider, not an
+    admin). Both AccessDenied; the trail kept logging (last file 11:14 UTC, see
+    aws_cloudtrail_logging_tampering-trail-still-logging.png). Logs reached S3 by about
+    10:30 UTC, were pulled with a read-only SSO role and ingested about 15 minutes later,
+    which was past the rule's 10-minute look-back, so the 2 Critical alerts came from a
+    Kibana manual run over 10:20-10:40 UTC. Before the test, real Dev logs showed one false
+    positive (CloudTrail's own org trail replication), tuned out first (design-notes.md).
 
 aws_console_login_without_mfa:
   status: not run
