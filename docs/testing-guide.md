@@ -17,8 +17,11 @@ How to trigger each rule safely in the real lab and prove the alert fires.
 2. Wait for delivery: CloudTrail takes 5 to 15 minutes to reach S3; Entra shows sign-ins in
    a few minutes.
 3. Export or sync the logs and run `detlab ingest` (see `ingestion.md`).
-4. Check **Security → Alerts** in Kibana. The rules run every 10 minutes, or open the rule
-   and use "Run" / preview to check sooner.
+4. Check **Security → Alerts** in Kibana. The rules run every 10 minutes. The AWS and
+   single-event Entra rules look back 60 minutes, so ingest within about 45 minutes of the
+   trigger and they alert on their own. The two correlation rules only look back 10 minutes
+   (see `design-notes.md`), and so does anything ingested later: open the rule → **⋯ →
+   Manual run** and give it a time range around the trigger.
 5. Screenshot the alert, redact it (see `evidence/README.md`), and save it as
    `evidence/<rule name>.png`.
 6. Clean up as listed.

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
+from typing import Any
 
 from sigma.backends.elasticsearch import ESQLBackend
 from sigma.correlations import SigmaCorrelationRule
@@ -55,18 +57,42 @@ def rendered_files(rules_dir: Path, pipeline_file: Path) -> dict[str, str]:
     return files
 
 
-def kibana_ndjson(rules_dir: Path, pipeline_file: Path, interval_minutes: int = 10) -> str:
+_AGGREGATING = re.compile(r"\|\s*stats\b", re.IGNORECASE)
+
+
+def is_aggregating(query: str) -> bool:
+    """True for ES|QL queries with STATS (the correlation rules). Their alerts carry no _id."""
+    return bool(_AGGREGATING.search(query))
+
+
+def apply_lookback(rule: dict[str, Any], interval_minutes: int, lookback_minutes: int) -> dict[str, Any]:
+    """Set how far back each run searches (the rule's `from`).
+
+    Logs arrive late here: CloudTrail takes 5-15 minutes to reach S3 and is then pulled by
+    hand, so a look-back equal to the interval misses them. Non-aggregating rules keep _id,
+    which Kibana uses to avoid duplicate alerts, so they get the longer look-back.
+    Aggregating rules have no _id and a lab test showed Kibana raising the same alert on
+    every overlapping run (design-notes.md), so they keep look-back = interval.
+    """
+    if lookback_minutes < interval_minutes:
+        raise ValueError("look-back must be at least the schedule interval")
+    minutes = interval_minutes if is_aggregating(rule["query"]) else lookback_minutes
+    return {**rule, "interval": f"{interval_minutes}m", "from": f"now-{minutes}m", "to": "now"}
+
+
+def kibana_ndjson(rules_dir: Path, pipeline_file: Path, interval_minutes: int = 10, lookback_minutes: int = 60) -> str:
     """Elastic Security detection rules (ES|QL type) as an NDJSON import file.
 
-    The schedule interval is also the look-back window. The correlation rules count over
-    ten minutes, so a shorter interval would make them only ever see part of their window.
-    Needs internet access: pySigma downloads the MITRE ATT&CK data to fill in tactic and
-    technique names.
+    Rules run every `interval_minutes`. The correlation rules count over ten minutes, so a
+    shorter interval would make them only ever see part of their window. See
+    apply_lookback() for the look-back. Needs internet access: pySigma downloads the MITRE
+    ATT&CK data to fill in tactic and technique names.
     """
     collection = sigma_eval.load_rules(rules_dir)
     pipeline = ProcessingPipeline.from_yaml(pipeline_file.read_text(encoding="utf-8"))
     esql = ESQLBackend(processing_pipeline=pipeline, schedule_interval=interval_minutes, schedule_interval_unit="m")
     rules = esql.convert(collection, output_format="siem_rule_ndjson")
+    rules = [apply_lookback(rule, interval_minutes, lookback_minutes) for rule in rules]
     return "".join(json.dumps(rule, ensure_ascii=False) + "\n" for rule in rules)
 
 

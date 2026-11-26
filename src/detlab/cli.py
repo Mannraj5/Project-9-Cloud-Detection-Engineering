@@ -52,7 +52,7 @@ def cmd_kibana(args: argparse.Namespace) -> int:
     root = _root(args)
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
-    content = convert.kibana_ndjson(root / "rules", root / "pipelines" / "detlab-esql.yml", args.interval)
+    content = convert.kibana_ndjson(root / "rules", root / "pipelines" / "detlab-esql.yml", args.interval, args.lookback)
     out.write_text(content, encoding="utf-8", newline="\n")
     print(f"wrote {len(content.splitlines())} rules to {out}")
     return 0
@@ -113,7 +113,13 @@ def main(argv: list[str] | None = None) -> int:
 
     p_kibana = sub.add_parser("kibana", help="build an Elastic Security rule import file (needs internet for ATT&CK data)")
     p_kibana.add_argument("-o", "--output", default="build/kibana-rules.ndjson")
-    p_kibana.add_argument("--interval", type=int, default=10, help="schedule and look-back in minutes (default 10)")
+    p_kibana.add_argument("--interval", type=int, default=10, help="how often each rule runs, in minutes (default 10)")
+    p_kibana.add_argument(
+        "--lookback",
+        type=int,
+        default=60,
+        help="how far back non-correlation rules search, in minutes (default 60; correlation rules always use --interval)",
+    )
     p_kibana.set_defaults(func=cmd_kibana)
 
     p_check = sub.add_parser("check-export", help="check real log files against the fields the rules use (offline)")

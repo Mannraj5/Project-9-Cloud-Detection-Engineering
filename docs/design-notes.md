@@ -42,9 +42,24 @@ the two agree.
 
 pySigma's default Elastic rule export runs every 5 minutes and looks back 5 minutes. The
 correlation rules count over 10 minutes, so with a 5-minute look-back they could never see
-their full window. `detlab kibana` exports with a 10-minute interval and look-back. Alerts
-can arrive up to about 10 minutes late, plus CloudTrail's own delivery delay (usually 5 to 15
-minutes).
+their full window. `detlab kibana` runs every rule every 10 minutes.
+
+**Late data.** The first lab test showed that a look-back equal to the interval is too
+short here. CloudTrail took about 2 minutes to reach S3, the logs were pulled by hand and
+ingested about 15 minutes after the event, and the rule had already searched that time
+range. So the non-correlation rules now look back **60 minutes** (`--lookback`). Kibana
+uses each event's `_id` to avoid duplicate alerts in the overlap, and the queries keep
+`_id` (`metadata _id, _index, _version`, nothing drops it).
+
+**Correlation rules keep look-back = interval.** Their `STATS ... BY` results have no `_id`.
+Elastic's docs don't say how those are deduplicated, so it was tested on the lab cluster
+(Elasticsearch/Kibana 9.5.7, 2026-11-26): a copy of the failed sign-in rule on its own
+index, every 1 minute with a 30-minute look-back, over one burst of 12 failures. It raised
+the same alert on 3 consecutive runs. A longer look-back would repeat correlation alerts,
+so they stay at 10 minutes and late Entra exports are checked with a **manual run** over
+the export's time range (rule → ⋯ → Manual run). Alert suppression could also fix this,
+but it depends on the subscription level, and the lab drops to the Basic licence after
+the trial.
 
 ## CloudTrail mapping conflicts
 

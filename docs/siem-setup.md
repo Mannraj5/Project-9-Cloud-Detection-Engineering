@@ -108,8 +108,10 @@ Security app off (`/app/security/rules` says "Application not found"). Switch it
 gear icon → **Spaces → Default → Solution view: Security → Apply changes**.
 
 In Kibana go to **Security → Rules → Detection rules → Import rules** and import
-`build/kibana-rules.ndjson`. The rules arrive enabled with a 10-minute schedule (see
-`design-notes.md` for why). Imported rules need a user with Security privileges; `elastic`
+`build/kibana-rules.ndjson`. The rules arrive enabled with a 10-minute schedule and a
+60-minute look-back (10 minutes for the two correlation rules; see `design-notes.md` for
+why). To update rules that are already there, tick **Overwrite existing detection rules
+with conflicting "rule_id"** in the import dialog. Imported rules need a user with Security privileges; `elastic`
 has them.
 
 Also create a data view for `detlab-*` (Stack Management → Data views) so you can browse the
