@@ -10,7 +10,7 @@ or `validation/lab-tests.yml` and regenerate.
 
 | Rule | Severity | Log source | Tactics | Techniques | Offline tests | Lab test |
 |---|---|---|---|---|---|---|
-| `aws_cloudtrail_logging_tampering` | critical | CloudTrail | defense-impairment | [T1685.002](https://attack.mitre.org/techniques/T1685/002/) | 4/4 ✅ | not run |
+| `aws_cloudtrail_logging_tampering` | critical | CloudTrail | defense-impairment | [T1685.002](https://attack.mitre.org/techniques/T1685/002/) | 8/8 ✅ | not run |
 | `aws_console_login_without_mfa` | high | CloudTrail | initial-access, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
 | `aws_root_console_login` | high | CloudTrail | initial-access, persistence, privilege-escalation, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
 | `entra_break_glass_signin` | high | Entra sign-in | initial-access, persistence, privilege-escalation | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |

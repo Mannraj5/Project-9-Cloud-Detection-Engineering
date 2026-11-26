@@ -67,3 +67,12 @@ All sample events use account IDs `111111111111` and `222222222222`, documentati
 (`203.0.113.0/24`, `198.51.100.0/24`) and the reserved `lab.example` domain. `detlab lint`
 fails if anything that looks like a real account ID, access key or email domain appears in
 the fixtures, validation or evidence files.
+
+## Tuning log
+
+Changes made because real logs disagreed with the fixtures. Each one adds fixture cases so
+the same mistake can't come back.
+
+| Date | Rule | What real data showed | Change |
+|---|---|---|---|
+| 2026-11-26 | `aws_cloudtrail_logging_tampering` | `detlab check-export` on the Dev account's CloudTrail (47 records) found one match: `PutEventSelectors` on the organisation trail, made by `AWSServiceRoleForCloudTrail` with `invokedBy: cloudtrail.amazonaws.com`. That is CloudTrail copying the org trail's settings into the member account when the trail was created. A Critical false positive. | Exclude events only when **both** `userIdentity.invokedBy` is `cloudtrail.amazonaws.com` and the session issuer is `AWSServiceRoleForCloudTrail`. Only AWS can use that service-linked role. `is null` guards keep events without those fields alerting, because in ES\|QL a `not` on a missing field would drop them (a cross-account `StopLogging` has no session context). Four fixture cases cover the real event, a manual change, a near-miss role and the null case. |

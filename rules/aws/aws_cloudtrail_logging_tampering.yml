@@ -29,8 +29,22 @@ detection:
       - PutEventSelectors
       - DeleteEventDataStore
       - StopEventDataStoreIngestion
-  condition: selection
+  # Creating an organisation trail makes CloudTrail itself copy the trail settings into every
+  # member account (PutEventSelectors by its service-linked role). Seen in the real Dev logs
+  # on 2026-11-21. Only AWS can use that role, so it is excluded, but only when both markers
+  # are present: in ES|QL a "not" on a missing field drops the event, so the guards keep
+  # anything without them (a person, a cross-account call) alerting.
+  filter_cloudtrail_service_role:
+    userIdentity.invokedBy: cloudtrail.amazonaws.com
+    userIdentity.sessionContext.sessionIssuer.userName: AWSServiceRoleForCloudTrail
+  guard_no_invoked_by:
+    userIdentity.invokedBy: null
+  guard_no_session_issuer:
+    userIdentity.sessionContext.sessionIssuer.userName: null
+  condition: selection and (1 of guard_* or not filter_cloudtrail_service_role)
 falsepositives:
   - An administrator changing trail settings during planned work (for example adding data
     events). Check for a change record before closing as benign.
+  - CloudTrail replicating an organisation trail into member accounts is already excluded
+    (see filter_cloudtrail_service_role).
 level: critical

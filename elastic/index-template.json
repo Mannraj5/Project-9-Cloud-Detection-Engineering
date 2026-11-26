@@ -30,7 +30,17 @@
         "readOnly": { "type": "boolean" },
         "userIdentity": {
           "properties": {
-            "type": { "type": "keyword" }
+            "type": { "type": "keyword" },
+            "invokedBy": { "type": "keyword" },
+            "sessionContext": {
+              "properties": {
+                "sessionIssuer": {
+                  "properties": {
+                    "userName": { "type": "keyword" }
+                  }
+                }
+              }
+            }
           }
         },
         "requestParameters": { "type": "object", "dynamic": false },
