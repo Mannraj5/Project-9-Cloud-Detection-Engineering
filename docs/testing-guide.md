@@ -33,9 +33,15 @@ How to trigger each rule safely in the real lab and prove the alert fires.
   email and a **wrong password**. The rule alerts on failed root attempts as well, so no
   real root sign-in is needed.
 - **Expect:** `ConsoleLogin` with `userIdentity.type: Root` and `ConsoleLogin: Failure`.
-- **If no event appears:** if centralised root access is turned on in Organizations, member
-  accounts may have no root sign-in at all. Mark it "not testable" with that reason
-  instead of weakening controls to get a screenshot.
+- **With centralised root access on (this lab):** the sign-in page says "Authentication
+  failed" and **no `ConsoleLogin` is logged**, because member accounts have no root
+  password. Clicking **Forgot password?** shows "Password recovery is disabled", but
+  CloudTrail still logs `PasswordRecoveryRequested` (type Root) in us-east-1, and the rule
+  alerts on that. Never weaken the control to get a sign-in event. Stop after one or two
+  attempts: AWS adds a CAPTCHA after a failure.
+- **Careful:** check the email is the Dev one before clicking anything. On the
+  management account email, "Forgot password" starts a real root password reset, and
+  some AWS pages are AWS Builder ID sign-ins, which are separate from your accounts.
 - **Clean-up:** none.
 
 ### aws_cloudtrail_logging_tampering

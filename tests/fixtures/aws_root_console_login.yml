@@ -74,3 +74,40 @@ cases:
         readOnly: true
         eventType: AwsApiCall
         recipientAccountId: "111111111111"
+
+  # Added after the lab test (2026-11-27). With centralised root access on, the failed root
+  # sign-in to the Dev account was not logged at all, but the "Forgot password" request was.
+  # This is that real event, anonymised.
+  - name: root password recovery requested on a member account (real lab event)
+    expect: alert
+    events:
+      - eventVersion: "1.11"
+        userIdentity: {type: Root, principalId: "111111111111", arn: "arn:aws:iam::111111111111:root", accountId: "111111111111", accessKeyId: ""}
+        eventTime: "2026-11-27T11:06:18Z"
+        eventSource: signin.amazonaws.com
+        eventName: PasswordRecoveryRequested
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        requestParameters: null
+        responseElements: {PasswordRecoveryRequested: Success}
+        eventID: 0a6f3c1e-0001-4000-8000-000000000005
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        managementEvent: true
+        recipientAccountId: "111111111111"
+        eventCategory: Management
+
+  - name: a password recovery event for a non-root identity does not match
+    expect: no_alert
+    events:
+      - eventVersion: "1.11"
+        userIdentity: {type: IAMUser, principalId: "AIDAEXAMPLE", arn: "arn:aws:iam::111111111111:user/detlab-test-user", accountId: "111111111111", userName: detlab-test-user}
+        eventTime: "2026-11-27T11:10:00Z"
+        eventSource: signin.amazonaws.com
+        eventName: PasswordRecoveryRequested
+        awsRegion: us-east-1
+        sourceIPAddress: 203.0.113.10
+        eventID: 0a6f3c1e-0001-4000-8000-000000000006
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "111111111111"

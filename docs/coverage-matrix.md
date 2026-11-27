@@ -12,7 +12,7 @@ or `validation/lab-tests.yml` and regenerate.
 |---|---|---|---|---|---|---|
 | `aws_cloudtrail_logging_tampering` | critical | CloudTrail | defense-impairment | [T1685.002](https://attack.mitre.org/techniques/T1685/002/) | 8/8 ✅ | passed (2026-11-26) |
 | `aws_console_login_without_mfa` | high | CloudTrail | initial-access, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
-| `aws_root_console_login` | high | CloudTrail | initial-access, persistence, privilege-escalation, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
+| `aws_root_console_login` | high | CloudTrail | initial-access, persistence, privilege-escalation, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 6/6 ✅ | not run |
 | `entra_break_glass_signin` | high | Entra sign-in | initial-access, persistence, privilege-escalation | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
 | `entra_mass_user_disable` | high | Entra audit | impact | [T1531](https://attack.mitre.org/techniques/T1531/) | 4/4 ✅ | not run |
 | `entra_privileged_role_assigned` | high | Entra audit | persistence, privilege-escalation | [T1098.003](https://attack.mitre.org/techniques/T1098/003/) | 5/5 ✅ | not run |

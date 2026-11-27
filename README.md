@@ -14,7 +14,7 @@ my own AWS and Entra lab (the one built in Project 8).
 | Rule | Severity | ATT&CK |
 |---|---|---|
 | CloudTrail stopped, deleted or modified | critical | T1685.002 |
-| Root user console sign-in | high | T1078.004 |
+| Root user console sign-in or password recovery | high | T1078.004 |
 | Console sign-in without MFA (IAM user or root) | high | T1078.004 |
 | Break-glass account sign-in | high | T1078.004 |
 | Tier-0 Entra role assigned (Global Admin and similar) | high | T1098.003 |

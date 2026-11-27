@@ -1,11 +1,15 @@
-title: AWS Root User Console Sign-in
+title: AWS Root User Console Sign-in or Password Recovery
 id: 714a85b6-9110-4c7a-8f9a-4e047d8f48ae
 name: aws_root_console_login
 status: experimental
 description: |
-  Detects a console sign-in attempt (successful or failed) by the AWS account root user.
-  In this lab every human signs in through IAM Identity Center, so the root user should
-  only ever be used for the few tasks that need it, under a documented break-glass procedure.
+  Detects a console sign-in attempt (successful or failed) or a password recovery request
+  by the AWS account root user. In this lab every human signs in through IAM Identity
+  Center, so the root user should only ever be used for the few tasks that need it, under a
+  documented break-glass procedure. Password recovery was added after the lab test: with
+  centralised root access on, a failed root sign-in to a member account is not logged at
+  all, but a "Forgot password" request is (PasswordRecoveryRequested, type Root), and it is
+  how someone would try to take over a root account.
 references:
   - https://docs.aws.amazon.com/IAM/latest/UserGuide/root-user-tasks.html
   - https://attack.mitre.org/techniques/T1078/004/
@@ -24,10 +28,14 @@ logsource:
 detection:
   selection:
     eventSource: signin.amazonaws.com
-    eventName: ConsoleLogin
+    eventName:
+      - ConsoleLogin
+      - PasswordRecoveryRequested
     userIdentity.type: Root
   condition: selection
 falsepositives:
   - Planned root tasks (closing an account, changing the support plan, restoring a lost
     management account admin). These should match a change ticket or break-glass log entry.
+  - The owner using "Forgot password" on the root sign-in page by mistake (seen in the lab
+    test on 2026-11-26).
 level: high
