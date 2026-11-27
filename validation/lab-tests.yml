@@ -34,16 +34,29 @@ aws_cloudtrail_logging_tampering:
     positive (CloudTrail's own org trail replication), tuned out first (design-notes.md).
 
 aws_console_login_without_mfa:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-27
+  evidence: evidence/aws_console_login_without_mfa.png
+  notes: >-
+    Nobody can create IAM users in Dev (the Developer set denies iam:CreateUser and
+    iam:CreateLoginProfile), so the admin user was given the Admin permission set on Dev
+    for the test only. It created detlab-test-user with a console password, no MFA and no
+    permissions, which signed in at 12:02:52 UTC. High alert at 12:12:08 UTC, on its own.
+    The admin session's console browsing (336 events ingested) raised no other alerts.
+    Clean-up the same evening: user deleted, Admin removed again
+    (aws_console_login_without_mfa-cleanup.png).
 
 aws_iam_access_key_created:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-27
+  evidence: evidence/aws_iam_access_key_created.png
+  notes: >-
+    A developer (Developer permission set in the Dev account) ran
+    `aws iam create-access-key --user-name detlab-test-user` at 11:46:51 UTC. The Developer
+    set explicitly denies iam:CreateAccessKey (Project 8 guardrail), so it failed with
+    AccessDenied, but CloudTrail logged CreateAccessKey (us-east-1, 11:47:02 UTC). The
+    rule alerts on the attempt as well as on success: Medium alert at 12:01:52 UTC, on its
+    own. Prevented and detected. Nothing was created, so no clean-up.
 
 aws_guardrail_policy_change:
   status: not run
