@@ -7,10 +7,17 @@
 #   notes:    anything surprising (delay before the alert, extra events, tuning needed)
 
 aws_root_console_login:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-27
+  evidence: evidence/aws_root_console_login.png
+  notes: >-
+    Wrong-password root sign-in to the Dev account: "Authentication failed", then a CAPTCHA
+    on the next try. Centralised root access is on, so member accounts have no root password
+    and the failed sign-in was not logged at all (no ConsoleLogin). "Forgot password" said
+    recovery is disabled, but CloudTrail logged PasswordRecoveryRequested (type Root,
+    us-east-1, 11:06:18 UTC). The rule was widened to catch that (tuning log), re-imported,
+    and the High alert fired on its own at 11:31:53 UTC with the 60-minute look-back, no
+    manual run.
 
 aws_cloudtrail_logging_tampering:
   status: passed
