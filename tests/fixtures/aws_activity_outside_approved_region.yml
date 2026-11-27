@@ -85,3 +85,23 @@ cases:
         eventID: 0a6f3c1e-0006-4000-8000-000000000006
         eventType: AwsApiCall
         recipientAccountId: "111111111111"
+
+  # Added after real management-account logs (2026-11-27): the root user's console sign-in
+  # was logged in us-west-2 (and another in us-east-2), the region of the sign-in endpoint.
+  # Anonymised.
+  - name: console sign-in logged by a regional sign-in endpoint (us-west-2) is not activity
+    expect: no_alert
+    events:
+      - eventVersion: "1.11"
+        userIdentity: {type: Root, principalId: "222222222222", arn: "arn:aws:iam::222222222222:root", accountId: "222222222222"}
+        eventTime: "2026-11-27T11:29:55Z"
+        eventSource: signin.amazonaws.com
+        eventName: ConsoleLogin
+        awsRegion: us-west-2
+        sourceIPAddress: 203.0.113.10
+        responseElements: {ConsoleLogin: Success}
+        additionalEventData: {MFAUsed: "Yes", MobileVersion: "No"}
+        eventID: 0a6f3c1e-0006-4000-8000-000000000007
+        readOnly: false
+        eventType: AwsConsoleSignIn
+        recipientAccountId: "222222222222"

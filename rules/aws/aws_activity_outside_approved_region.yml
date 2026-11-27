@@ -44,6 +44,12 @@ detection:
       - cloudfront.amazonaws.com
       - route53.amazonaws.com
       - notifications.amazonaws.com
+  # Console sign-ins are logged in the region of the sign-in endpoint that handled them,
+  # which can be us-east-2 or us-west-2 as well as us-east-1 (seen in the management
+  # account's real logs, 2026-11-26 and 27). A sign-in is not a resource built outside
+  # Sydney, and the root and no-MFA rules already cover sign-ins.
+  filter_main_signin_any_region:
+    eventSource: signin.amazonaws.com
   condition: selection and not 1 of filter_main_*
 falsepositives:
   - Global services not in the filter list. Add them after checking they really only log in
