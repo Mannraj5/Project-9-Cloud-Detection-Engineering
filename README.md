@@ -9,6 +9,10 @@ my own AWS and Entra lab (the one built in Project 8).
 
 ![ci](https://github.com/Mannraj5/Project-9-Cloud-Detection-Engineering/actions/workflows/ci.yml/badge.svg)
 
+**Video walkthrough (6 min):** [youtu.be/Irp7sPbaK2A](https://youtu.be/Irp7sPbaK2A)
+
+[![Video walkthrough: Cloud Detection Engineering](https://img.youtube.com/vi/Irp7sPbaK2A/hqdefault.jpg)](https://youtu.be/Irp7sPbaK2A)
+
 ## Rules
 
 | Rule | Severity | ATT&CK |
@@ -123,7 +127,7 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
 
 ## Presentation
 
-A 12-slide walkthrough of the project, with the talk track in the speaker notes:
+The slides from the [video](https://youtu.be/Irp7sPbaK2A), 12 in total, with the talk track in the speaker notes:
 [cloud-detection-engineering.pptx](docs/presentation/cloud-detection-engineering.pptx).
 GitHub can't preview PowerPoint files: open the link and click **Download raw file**
 (the download icon at the top right of the file view).
