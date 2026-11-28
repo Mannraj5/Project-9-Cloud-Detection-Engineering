@@ -123,8 +123,10 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
 
 ## Cost
 
-US$0 so far. The SIEM runs locally; the only AWS cost is a few S3 GET requests for the
-log sync.
+US$0 in total (lab run 24-28 November 2026). The SIEM runs locally in WSL2, CloudTrail
+management events are free for the first trail copy, and the only AWS usage was a few
+hundred S3 GET requests for the log sync, well inside the free tier. Entra ID Free has no
+log export cost.
 
 ## Related projects
 
