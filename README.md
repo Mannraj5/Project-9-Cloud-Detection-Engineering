@@ -66,7 +66,8 @@ rest as tested "known gap" cases so nobody is surprised later. Details in
   look back 60 minutes. A probe on the lab cluster showed that aggregating ES|QL rules repeat
   alerts across overlapping windows, so the two correlation rules keep 10 minutes.
 - **A real break-glass finding:** the break-glass rule flagged an emergency access account
-  still signed in on an everyday phone (follow-up: revoke its sessions).
+  still signed in on an everyday phone. Sessions revoked the same day and logged as an
+  incident in Project 8.
 - Every AWS test that a guardrail blocked (StopLogging, CreateAccessKey, out-of-region
   CreateTopic) still alerted: prevented and detected.
 - The Entra portal's JSON export uses the Graph field names, confirmed with `check-export`.

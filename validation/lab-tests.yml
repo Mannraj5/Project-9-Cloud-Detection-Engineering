@@ -93,8 +93,9 @@ entra_break_glass_signin:
     Real finding: the same export showed two earlier successful non-interactive sign-ins
     by that account (Office and Bing apps on a personal phone, with MFA) on 2026-11-27. The
     account had been left signed in on an everyday device after its passkey was set up.
-    Follow-up: revoke the account's sessions, sign the apps out and record it in Project
-    8's incident log. Exactly the "every use must be explained" case this rule exists for.
+    Same day: confirmed as the owner's own device, all sessions revoked in Entra, the apps
+    signed out, and logged as INC-003 in Project 8's incident log. Exactly the "every use
+    must be explained" case this rule exists for.
 
 entra_privileged_role_assigned:
   status: passed
