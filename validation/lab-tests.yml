@@ -84,25 +84,47 @@ aws_activity_outside_approved_region:
     us-west-2 by regional sign-in endpoints), tuned out first (design-notes.md).
 
 entra_break_glass_signin:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-28
+  evidence: evidence/entra_break_glass_signin.png
+  notes: >-
+    One wrong-password sign-in to a break-glass account (bg-emergency prefix) at 09:54
+    UTC, then the portal JSON export was ingested. High alert at 10:07:56 UTC, on its own.
+    Real finding: the same export showed two earlier successful non-interactive sign-ins
+    by that account (Office and Bing apps on a personal phone, with MFA) on 2026-11-27. The
+    account had been left signed in on an everyday device after its passkey was set up.
+    Follow-up: revoke the account's sessions, sign the apps out and record it in Project
+    8's incident log. Exactly the "every use must be explained" case this rule exists for.
 
 entra_privileged_role_assigned:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-28
+  evidence: evidence/entra_privileged_role_assigned.png
+  notes: >-
+    Created a blocked test user, assigned it Privileged Role Administrator (Entra Free, no
+    PIM, so a direct active assignment), removed it two minutes later, then deleted the
+    user. The audit export had two "Add member to role" events (09:27 and 09:29 UTC) with
+    the role name in modifiedProperties, which ingest flattens to
+    detlab.modified.Role_DisplayName. Two High alerts at 10:07:56 UTC, on their own.
 
 entra_mass_user_disable:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-28
+  evidence: evidence/entra_mass_user_disable.png
+  notes: >-
+    The admin disabled five test users (Edit properties > Settings > Account enabled)
+    inside the 09:50 UTC bucket. Five "Disable account" audit events, one actor. Ingested
+    about 10:01 UTC; a manual run over 09:15-10:00 UTC raised the High alert. The burst
+    was at the end of the bucket, so the next scheduled run (10:08, 10-minute look-back)
+    raised it a second time: the aggregating-rule duplicate described in design-notes.md,
+    seen in practice. Test users deleted afterwards.
 
 entra_repeated_failed_signins:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-28
+  evidence: evidence/entra_repeated_failed_signins.png
+  notes: >-
+    12 to 15 wrong passwords per test user inside one 10-minute bucket each (six test users
+    in the end), from a private browser window. Errors 50126 and, once Smart Lockout
+    locked the account, 50053. Manual run over the export's time range: six Medium alerts,
+    one per user. Test users deleted afterwards.

@@ -13,12 +13,12 @@ or `validation/lab-tests.yml` and regenerate.
 | `aws_cloudtrail_logging_tampering` | critical | CloudTrail | defense-impairment | [T1685.002](https://attack.mitre.org/techniques/T1685/002/) | 8/8 ✅ | passed (2026-11-26) |
 | `aws_console_login_without_mfa` | high | CloudTrail | initial-access, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | passed (2026-11-27) |
 | `aws_root_console_login` | high | CloudTrail | initial-access, persistence, privilege-escalation, stealth | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 6/6 ✅ | passed (2026-11-27) |
-| `entra_break_glass_signin` | high | Entra sign-in | initial-access, persistence, privilege-escalation | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | not run |
-| `entra_mass_user_disable` | high | Entra audit | impact | [T1531](https://attack.mitre.org/techniques/T1531/) | 4/4 ✅ | not run |
-| `entra_privileged_role_assigned` | high | Entra audit | persistence, privilege-escalation | [T1098.003](https://attack.mitre.org/techniques/T1098/003/) | 5/5 ✅ | not run |
+| `entra_break_glass_signin` | high | Entra sign-in | initial-access, persistence, privilege-escalation | [T1078.004](https://attack.mitre.org/techniques/T1078/004/) | 4/4 ✅ | passed (2026-11-28) |
+| `entra_mass_user_disable` | high | Entra audit | impact | [T1531](https://attack.mitre.org/techniques/T1531/) | 4/4 ✅ | passed (2026-11-28) |
+| `entra_privileged_role_assigned` | high | Entra audit | persistence, privilege-escalation | [T1098.003](https://attack.mitre.org/techniques/T1098/003/) | 5/5 ✅ | passed (2026-11-28) |
 | `aws_activity_outside_approved_region` | medium | CloudTrail | stealth | [T1535](https://attack.mitre.org/techniques/T1535/) | 7/7 ✅ | passed (2026-11-27) |
 | `aws_guardrail_policy_change` | medium | CloudTrail | defense-impairment, privilege-escalation, persistence | [T1484](https://attack.mitre.org/techniques/T1484/), [T1098.003](https://attack.mitre.org/techniques/T1098/003/) | 4/4 ✅ | passed (2026-11-27) |
 | `aws_iam_access_key_created` | medium | CloudTrail | persistence, privilege-escalation | [T1098.001](https://attack.mitre.org/techniques/T1098/001/) | 3/3 ✅ | passed (2026-11-27) |
-| `entra_repeated_failed_signins` | medium | Entra sign-in | credential-access | [T1110.001](https://attack.mitre.org/techniques/T1110/001/) | 5/5 ✅ | not run |
+| `entra_repeated_failed_signins` | medium | Entra sign-in | credential-access | [T1110.001](https://attack.mitre.org/techniques/T1110/001/) | 5/5 ✅ | passed (2026-11-28) |
 
-**10 rules, 6 validated in the live lab.**
+**10 rules, 10 validated in the live lab.**

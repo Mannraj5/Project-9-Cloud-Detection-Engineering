@@ -53,6 +53,24 @@ properties, adding a lower-cased UPN), added a lint check for unmapped fields, a
 rest as tested "known gap" cases so nobody is surprised later. Details in
 [docs/design-notes.md](docs/design-notes.md).
 
+### From the lab tests (real logs, 2026-11-26 to 28)
+
+- **Three false positives** that the fixtures missed, each tuned and turned into a fixture
+  case: CloudTrail copying the organisation trail into member accounts (Critical tampering
+  alert), and root console sign-ins logged by regional sign-in endpoints in us-east-2 and
+  us-west-2 (region alert). See the tuning log in the design notes.
+- **One blind spot:** with centralised root access on, a failed root sign-in to a member
+  account isn't logged at all, but a root password recovery request is. The root rule now
+  catches that too.
+- **Late data:** logs pulled by hand arrived after a 10-minute look-back, so the rules now
+  look back 60 minutes. A probe on the lab cluster showed that aggregating ES|QL rules repeat
+  alerts across overlapping windows, so the two correlation rules keep 10 minutes.
+- **A real break-glass finding:** the break-glass rule flagged an emergency access account
+  still signed in on an everyday phone (follow-up: revoke its sessions).
+- Every AWS test that a guardrail blocked (StopLogging, CreateAccessKey, out-of-region
+  CreateTopic) still alerted: prevented and detected.
+- The Entra portal's JSON export uses the Graph field names, confirmed with `check-export`.
+
 Two smaller ones: the default Elastic rule schedule (5 minutes) is shorter than the 10-minute
 correlation window, so those rules could never see a full window; and MITRE ATT&CK v20 moved
 "Disable or Modify Cloud Logs" to T1685.002 under the new Defense Impairment tactic.
@@ -96,9 +114,11 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
 
 - [x] 10 rules with fixtures, offline evaluator, CI against real Elasticsearch
 - [x] Triage playbooks: CloudTrail tampering, root sign-in, tier-0 role assignment
-- [ ] Elastic running locally in WSL2 ([docs/siem-setup.md](docs/siem-setup.md))
-- [ ] Real CloudTrail and Entra logs ingested ([docs/ingestion.md](docs/ingestion.md))
-- [ ] Each rule triggered in the lab with a redacted screenshot ([docs/testing-guide.md](docs/testing-guide.md))
+- [x] Elastic 9.5.7 running locally in WSL2 ([docs/siem-setup.md](docs/siem-setup.md))
+- [x] Real CloudTrail (Dev and management accounts) and Entra logs ingested ([docs/ingestion.md](docs/ingestion.md))
+- [x] **All 10 rules triggered in the lab and alerted**, with redacted screenshots
+  ([validation/lab-tests.yml](validation/lab-tests.yml), [evidence/](evidence/),
+  [docs/coverage-matrix.md](docs/coverage-matrix.md))
 
 ## Cost
 

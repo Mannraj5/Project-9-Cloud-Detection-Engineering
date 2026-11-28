@@ -67,7 +67,9 @@ export. Free keeps sign-in and audit data for **7 days**, so export soon after e
 `userPrincipalName` for sign-ins, `activityDisplayName` + `activityDateTime` for audit
 events). The rules and fixtures assume the portal export uses the same field names as the
 Microsoft Graph `signIn` and `directoryAudit` resources. Microsoft's docs don't publish the
-download's exact layout, so **check your first export before ingesting it**:
+download's exact layout. Checked on the lab's first real export (2026-11-28, 180 sign-ins and
+209 audit events): every field the rules use is present and single-valued, so the export
+matches Graph. Still **check each new export before ingesting it**:
 
 ```bash
 detlab check-export data/entra
