@@ -6,7 +6,7 @@ cases:
       - id: 6b1f0000-0007-4000-8000-000000000001
         createdDateTime: "2026-12-10T22:00:00Z"
         userDisplayName: Break Glass 01
-        userPrincipalName: BreakGlass01@lab.example
+        userPrincipalName: BG-Emergency-01@lab.example
         userId: 00000000-0000-4000-8000-0000000000b1
         appDisplayName: Microsoft Entra admin center
         ipAddress: 203.0.113.10
@@ -21,7 +21,7 @@ cases:
     events:
       - id: 6b1f0000-0007-4000-8000-000000000002
         createdDateTime: "2026-12-10T22:05:00Z"
-        userPrincipalName: breakglass02@lab.example
+        userPrincipalName: bg-emergency-02@lab.example
         appDisplayName: Microsoft Azure Portal
         ipAddress: 198.51.100.66
         status: {errorCode: 50126, failureReason: Invalid username or password or Invalid on-premise username or password.}
@@ -42,6 +42,6 @@ cases:
     events:
       - id: 6b1f0000-0007-4000-8000-000000000004
         createdDateTime: "2026-12-10T22:15:00Z"
-        userPrincipalName: admin.breakglass@lab.example
+        userPrincipalName: admin.bg-emergency@lab.example
         appDisplayName: Microsoft Azure Portal
         status: {errorCode: 0}

@@ -6,8 +6,9 @@ description: |
   Detects any sign-in attempt (successful or failed) by an emergency access (break-glass)
   account. These accounts are excluded from Conditional Access by design, so every use must
   be checked.
-  The rule matches on a naming prefix. Replace "breakglass" with your own convention. Keep
-  the real account names out of this public repo if you can; a prefix is enough.
+  The rule matches on the lab's naming prefix, "bg-emergency" (from Project 8's break-glass
+  runbook). Change it to your own convention; a prefix is enough, so the full account names
+  stay out of this public repo.
   Matching uses detlab.user_principal_name_lc, a lower-cased copy of the UPN added at ingest,
   because ES|QL string comparisons are case-sensitive.
 references:
@@ -26,7 +27,7 @@ logsource:
   service: signinlogs
 detection:
   selection:
-    detlab.user_principal_name_lc|startswith: breakglass
+    detlab.user_principal_name_lc|startswith: bg-emergency
   condition: selection
 falsepositives:
   - The scheduled break-glass sign-in test (for example quarterly). Record it in the
