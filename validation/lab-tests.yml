@@ -59,16 +59,29 @@ aws_iam_access_key_created:
     own. Prevented and detected. Nothing was created, so no clean-up.
 
 aws_guardrail_policy_change:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-27
+  evidence: evidence/aws_guardrail_policy_change.png
+  notes: >-
+    Tested with real changes instead of a dummy SCP: the temporary Admin permission set
+    given to the admin user on Dev for the no-MFA test (CreateAccountAssignment, 11:55:52
+    UTC) and its removal (DeleteAccountAssignment, 12:13:23 UTC), from the management
+    account's CloudTrail. Two Medium alerts at 12:32 UTC, on their own. The same logs also
+    held the earlier creation of the log-reader permission set (CreatePermissionSet,
+    PutInlinePolicyToPermissionSet, CreateAccountAssignment on 2026-11-26), which
+    check-export matched too (5 matches, all real admin changes).
 
 aws_activity_outside_approved_region:
-  status: not run
-  date:
-  evidence:
-  notes:
+  status: passed
+  date: 2026-11-27
+  evidence: evidence/aws_activity_outside_approved_region.png
+  notes: >-
+    A developer ran `aws sns create-topic --region us-east-1` at 12:18:26 UTC. The
+    Developer set only allows build services in ap-southeast-2, so it failed
+    (AuthorizationError, implicit deny), and CloudTrail logged CreateTopic in us-east-1.
+    Medium alert at 12:32:04 UTC, on its own. Before the test, the management account's
+    real logs showed two false positives (root console sign-ins logged in us-east-2 and
+    us-west-2 by regional sign-in endpoints), tuned out first (design-notes.md).
 
 entra_break_glass_signin:
   status: not run
