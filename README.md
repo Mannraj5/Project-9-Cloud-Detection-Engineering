@@ -121,6 +121,12 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
   ([validation/lab-tests.yml](validation/lab-tests.yml), [evidence/](evidence/),
   [docs/coverage-matrix.md](docs/coverage-matrix.md))
 
+## Presentation
+
+A 12-slide walkthrough of the project, with the talk track in the speaker notes:
+[PDF](docs/presentation/cloud-detection-engineering.pdf) ·
+[PowerPoint](docs/presentation/cloud-detection-engineering.pptx)
+
 ## Cost
 
 US$0 in total (lab run 24-28 November 2026). The SIEM runs locally in WSL2, CloudTrail
