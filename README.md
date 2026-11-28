@@ -124,8 +124,9 @@ detlab kibana                   # build/kibana-rules.ndjson to import into Elast
 ## Presentation
 
 A 12-slide walkthrough of the project, with the talk track in the speaker notes:
-[PDF](docs/presentation/cloud-detection-engineering.pdf) ·
-[PowerPoint](docs/presentation/cloud-detection-engineering.pptx)
+[cloud-detection-engineering.pptx](docs/presentation/cloud-detection-engineering.pptx).
+GitHub can't preview PowerPoint files: open the link and click **Download raw file**
+(the download icon at the top right of the file view).
 
 ## Cost
 
